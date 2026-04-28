@@ -1,0 +1,61 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import LoginView from '@/views/LoginView.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
+import DashboardView from '@/views/DashboardView.vue'
+import TailWaybillPrintView from '@/views/TailWaybillPrintView.vue'
+import PrintConfigView from '@/views/PrintConfigView.vue'
+import { useAuthStore } from '@/stores/auth'
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: '/login',
+      name: 'login',
+      component: LoginView,
+      meta: { title: '登录' },
+    },
+    {
+      path: '/',
+      component: AdminLayout,
+      redirect: '/dashboard',
+      children: [
+        {
+          path: 'dashboard',
+          name: 'dashboard',
+          component: DashboardView,
+          meta: { title: '仪表盘' },
+        },
+        {
+          path: 'tail-waybill-print',
+          name: 'tail-waybill-print',
+          component: TailWaybillPrintView,
+          meta: { title: '揽收/尾程打印明细' },
+        },
+        {
+          path: 'print-config',
+          name: 'print-config',
+          component: PrintConfigView,
+          meta: { title: '面单打印配置' },
+        },
+      ],
+    },
+  ],
+})
+
+router.beforeEach((to) => {
+  const authStore = useAuthStore()
+  if (to.path !== '/login' && !authStore.isAuthed) {
+    return '/login'
+  }
+  if (to.path === '/login' && authStore.isAuthed) {
+    return '/dashboard'
+  }
+  return true
+})
+
+router.afterEach((to) => {
+  document.title = `${to.meta.title ?? '后台管理'} - 后台管理系统`
+})
+
+export default router

@@ -4,23 +4,23 @@ read -p "please input(prod/test/pre):" value
 
 
 if [ "$value" == "pre" ]; then
-    name="pod_erp_style_vue_pre"
-    port="1503"
+    name="pinshun_order_front_pre"
+    port="1605"
     build="build_pre"
     nginx_env="pre"
 fi
 
 
 if [ "$value" == "test" ]; then
-    name="pod_erp_style_vue_test"
-    port="1603"
+    name="pinshun_order_front_test"
+    port="1505"
     build="build_test"
     nginx_env="test"
 fi
 
 if [ "$value" == "prod" ]; then
-    name="pod_erp_style_vue_prod"
-    port="3503"
+    name="pinshun_order_front_prod"
+    port="3505"
     build="build_prod"
     nginx_env="prod"
 fi

@@ -18,9 +18,14 @@ const loading = ref(false)
 const pageData = ref<TailWaybillPrintDetailPageResult[]>([])
 const total = ref(0)
 
+const getTodayTimeRange = () => [
+  dayjs().startOf('day').format('YYYY-MM-DD HH:mm:ss'),
+  dayjs().endOf('day').format('YYYY-MM-DD HH:mm:ss'),
+]
+
 const queryForm = reactive({
   search: '',
-  timeRange: [] as string[],
+  timeRange: getTodayTimeRange(),
   current: 1,
   size: 10,
 })
@@ -103,7 +108,7 @@ const onSearch = () => {
 
 const onReset = () => {
   queryForm.search = ''
-  queryForm.timeRange = []
+  queryForm.timeRange = getTodayTimeRange()
   queryForm.current = 1
   fetchPage()
 }

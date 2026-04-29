@@ -8,8 +8,13 @@ const loading = ref(false)
 const pageData = ref<TemuOrderScanRecordResult[]>([])
 const total = ref(0)
 
+const getCurrentMonthTimeRange = () => [
+  dayjs().startOf('month').format('YYYY-MM-DD HH:mm:ss'),
+  dayjs().endOf('month').format('YYYY-MM-DD HH:mm:ss'),
+]
+
 const queryForm = reactive({
-  timeRange: [] as string[],
+  timeRange: getCurrentMonthTimeRange(),
   current: 1,
   size: 10,
 })
@@ -44,7 +49,7 @@ const onSearch = () => {
 }
 
 const onReset = () => {
-  queryForm.timeRange = []
+  queryForm.timeRange = getCurrentMonthTimeRange()
   queryForm.current = 1
   fetchPage()
 }

@@ -66,7 +66,6 @@ const onSubmit = async () => {
           >登录</el-button
         >
       </el-form>
-      <div class="mt-3 text-xs text-slate-400 text-center">默认账号：admin / 123456</div>
     </el-card>
   </div>
 </template>

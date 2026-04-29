@@ -4,10 +4,13 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 import DashboardView from '@/views/DashboardView.vue'
 import TailWaybillPrintView from '@/views/TailWaybillPrintView.vue'
 import PrintConfigView from '@/views/PrintConfigView.vue'
+import OrderScanRecordView from '@/views/OrderScanRecordView.vue'
 import { useAuthStore } from '@/stores/auth'
 
+const isProd = import.meta.env.MODE !== 'development'
+
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(isProd ? '/pout/' : '/'),
   routes: [
     {
       path: '/login',
@@ -24,7 +27,7 @@ const router = createRouter({
           path: 'dashboard',
           name: 'dashboard',
           component: DashboardView,
-          meta: { title: '仪表盘' },
+          meta: { title: '首页' },
         },
         {
           path: 'tail-waybill-print',
@@ -37,6 +40,12 @@ const router = createRouter({
           name: 'print-config',
           component: PrintConfigView,
           meta: { title: '面单打印配置' },
+        },
+        {
+          path: 'order-scan-record',
+          name: 'order-scan-record',
+          component: OrderScanRecordView,
+          meta: { title: '订单扫码记录' },
         },
       ],
     },

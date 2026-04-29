@@ -138,18 +138,18 @@ const submitAddTailWaybill = async () => {
   }
 }
 
-const testPrint = async () => {
-  try {
-    await printDocument(
-      'https://uspinshun.oss-accelerate.aliyuncs.com/PK-2507787497635973511.pdf',
-      'pdf',
-      'TEMU_Y2#WAYBILL',
-    )
-    ElMessage.success('测试打印成功')
-  } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '测试打印失败')
-  }
-}
+// const testPrint = async () => {
+//   try {
+//     await printDocument(
+//       'https://uspinshun.oss-accelerate.aliyuncs.com/PK-2507787497635973511.pdf',
+//       'pdf',
+//       'TEMU_Y2#WAYBILL',
+//     )
+//     ElMessage.success('测试打印成功')
+//   } catch (error) {
+//     ElMessage.error(error instanceof Error ? error.message : '测试打印失败')
+//   }
+// }
 
 onMounted(() => {
   fetchPage()
@@ -162,8 +162,7 @@ onMounted(() => {
     <template #header>
       <div class="font-semibold">揽收/尾程打印明细</div>
     </template>
-
-    <el-button @click="testPrint">测试打印</el-button>
+    <!-- <el-button @click="testPrint">测试打印</el-button> -->
     <el-form inline class="mb-4">
       <el-form-item label="订单号/包裹号">
         <el-input
@@ -191,12 +190,7 @@ onMounted(() => {
     </el-form>
 
     <div class="flex items-center gap-2 mb-4">
-      <el-input
-        v-model="tailWaybillSearch"
-        type="text"
-        placeholder="请输入尾程运单号"
-        class="!w-64"
-      />
+      <el-input v-model="tailWaybillSearch" type="text" placeholder="请输入订单号" class="!w-64" />
       <el-button type="primary" @click="getTailWaybillPrintList">获取尾程面单</el-button>
     </div>
 

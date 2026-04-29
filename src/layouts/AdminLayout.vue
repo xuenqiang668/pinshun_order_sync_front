@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Fold, Expand, House, Tickets, Printer } from '@element-plus/icons-vue'
+import { Fold, Expand, House, Tickets, Printer, Document } from '@element-plus/icons-vue'
 import { computed, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useRoute, useRouter } from 'vue-router'
@@ -10,9 +10,10 @@ const router = useRouter()
 const isCollapse = ref(false)
 
 const menuItems = [
-  { index: '/dashboard', title: '仪表盘', icon: House },
+  { index: '/dashboard', title: '首页', icon: House },
   { index: '/tail-waybill-print', title: '揽收/尾程打印明细', icon: Tickets },
   { index: '/print-config', title: '面单打印配置', icon: Printer },
+  { index: '/order-scan-record', title: '订单扫码记录', icon: Document },
 ]
 
 const pageTitle = computed(() => route.meta.title ?? '后台管理')
@@ -48,7 +49,9 @@ const logout = () => {
         :collapse="isCollapse"
       >
         <el-menu-item v-for="item in menuItems" :key="item.index" :index="item.index">
-          <el-icon><component :is="item.icon" /></el-icon>
+          <el-icon>
+            <component :is="item.icon" />
+          </el-icon>
           <template #title>{{ item.title }}</template>
         </el-menu-item>
       </el-menu>

@@ -16,7 +16,7 @@ const menuItems = [
   { index: '/order-scan-record', title: '订单扫码记录', icon: Document },
 ]
 
-const pageTitle = computed(() => route.meta.title ?? '后台管理')
+const pageTitle = computed(() => route.meta.title ?? '品瞬科技')
 
 const toggleCollapse = () => {
   isCollapse.value = !isCollapse.value
@@ -37,7 +37,7 @@ const logout = () => {
       <div
         class="h-14 flex items-center justify-center border-b border-slate-700 text-white font-semibold"
       >
-        {{ isCollapse ? '后台' : '后台管理' }}
+        {{ isCollapse ? '后台' : '品瞬科技' }}
       </div>
       <el-menu
         :default-active="route.path"

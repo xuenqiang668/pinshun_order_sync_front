@@ -41,7 +41,7 @@ const onSubmit = async () => {
   <div class="min-h-screen flex items-center justify-center bg-slate-100 px-4">
     <el-card class="w-full max-w-md">
       <template #header>
-        <div class="text-center text-xl font-semibold text-slate-700">后台管理系统登录</div>
+        <div class="text-center text-xl font-semibold text-slate-700">品瞬科技系统登录</div>
       </template>
       <el-form
         ref="formRef"

@@ -4,7 +4,7 @@ const TOKEN_KEY = 'admin_token'
 
 const request = axios.create({
   baseURL: '/api',
-  timeout: 10000,
+  timeout: 10000 * 6,
 })
 
 let clearingSessionPromise: Promise<void> | null = null

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
+import dayjs from 'dayjs'
 import { getOrderScanRecordPageApi, type TemuOrderScanRecordResult } from '@/api/orderScanRecord'
 
 const loading = ref(false)
@@ -53,39 +54,54 @@ const onPageChange = (page: number) => {
   fetchPage()
 }
 
+const formatCreateTime = (createTime?: string) => {
+  if (!createTime) return '-'
+  const date = dayjs(createTime)
+  return date.isValid() ? date.format('YYYY-MM-DD HH:mm:ss') : createTime
+}
+
 onMounted(() => {
   fetchPage()
 })
 </script>
 
 <template>
-  <el-card>
+  <el-card class="record-page-card !rounded-xl !border-0">
     <template #header>
-      <div class="font-semibold">订单扫码记录</div>
+      <div class="flex items-center justify-between">
+        <div class="text-base font-semibold text-slate-800">订单扫码记录</div>
+        <el-tag type="info" effect="plain">共 {{ total }} 条</el-tag>
+      </div>
     </template>
 
-    <el-form inline class="mb-4">
-      <el-form-item label="时间范围">
-        <el-date-picker
-          v-model="queryForm.timeRange"
-          type="datetimerange"
-          value-format="YYYY-MM-DD HH:mm:ss"
-          range-separator="至"
-          start-placeholder="开始时间"
-          end-placeholder="结束时间"
-          class="!w-[420px]"
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSearch">查询</el-button>
-        <el-button @click="onReset">重置</el-button>
-      </el-form-item>
-    </el-form>
+    <div class="mb-4 rounded-lg border border-slate-200 bg-slate-50 p-4">
+      <el-form inline class="query-form">
+        <el-form-item label="时间范围">
+          <el-date-picker
+            v-model="queryForm.timeRange"
+            type="datetimerange"
+            value-format="YYYY-MM-DD HH:mm:ss"
+            range-separator="至"
+            start-placeholder="开始时间"
+            end-placeholder="结束时间"
+            class="!w-[440px]"
+          />
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="onSearch">查询</el-button>
+          <el-button @click="onReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
 
-    <el-table v-loading="loading" :data="pageData" border stripe>
+    <el-table v-loading="loading" :data="pageData" border stripe class="result-table">
       <el-table-column prop="orderNo" label="订单号" min-width="220" />
       <el-table-column prop="createUserName" label="创建用户" min-width="180" />
-      <el-table-column prop="createTime" label="创建时间" min-width="200" />
+      <el-table-column label="创建时间" min-width="200">
+        <template #default="{ row }">
+          {{ formatCreateTime(row.createTime) }}
+        </template>
+      </el-table-column>
     </el-table>
 
     <div class="mt-4 flex justify-end">
@@ -100,3 +116,19 @@ onMounted(() => {
     </div>
   </el-card>
 </template>
+
+<style scoped>
+.record-page-card {
+  box-shadow: 0 8px 24px rgb(15 23 42 / 6%);
+}
+
+.query-form :deep(.el-form-item) {
+  margin-bottom: 8px;
+}
+
+.result-table :deep(.el-table__header th) {
+  background-color: #f8fafc;
+  color: #334155;
+  font-weight: 600;
+}
+</style>

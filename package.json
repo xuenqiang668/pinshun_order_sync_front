@@ -6,6 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "build_online": "vite build --mode development_online",
+		"build_pre": "vite build --mode development_pre",
+		"build_test": "vite build --mode development_test",
+		"build_prod": "vite build --mode production",
+		"prod": "vite  --mode production",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

@@ -9,7 +9,7 @@ export default defineConfig(({ mode }) => {
   const port = Number(envConfig.VITE_PORT) || 5173
 
   return {
-    base: isProd ? '/pout/' : '/',
+    base: isProd ? '/produce/' : '/',
     plugins: [vue()],
     server: {
       port,

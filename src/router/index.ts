@@ -10,7 +10,7 @@ import { useAuthStore } from '@/stores/auth'
 const isProd = import.meta.env.MODE !== 'development'
 
 const router = createRouter({
-  history: createWebHistory(isProd ? '/pout/' : '/'),
+  history: createWebHistory(isProd ? '/produce/' : '/'),
   routes: [
     {
       path: '/login',

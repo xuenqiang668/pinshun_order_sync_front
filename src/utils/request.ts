@@ -3,7 +3,7 @@ import axios from 'axios'
 const TOKEN_KEY = 'admin_token'
 
 const request = axios.create({
-  baseURL: 'http://localhost:2602',
+  baseURL: '/api',
   timeout: 10000,
 })
 

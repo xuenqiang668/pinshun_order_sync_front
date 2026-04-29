@@ -6,12 +6,13 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig(({ mode }) => {
   const envConfig = loadEnv(mode, './')
   const isProd = mode !== 'development'
+  const port = Number(envConfig.VITE_PORT) || 5173
 
   return {
     base: isProd ? '/pout/' : '/',
     plugins: [vue()],
     server: {
-      port: envConfig.VITE_PORT,
+      port,
       proxy: {
         '/api': {
           target: envConfig.VITE_API_BASEURL,

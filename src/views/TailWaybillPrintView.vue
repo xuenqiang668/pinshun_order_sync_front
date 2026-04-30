@@ -127,7 +127,7 @@ const formatDateTime = (value?: string) => {
 const tailWaybillPrintListLoading = ref(false)
 const getTailWaybillPrintList = async () => {
   if (!tailWaybillSearch.value) {
-    ElMessage.warning('请先输入尾程运单号')
+    ElMessage.warning('请先输入订单号')
     return
   }
   try {
@@ -155,6 +155,7 @@ const getTailWaybillPrintList = async () => {
     ElMessage.error(error instanceof Error ? error.message : '获取面单失败')
     printList.value = []
   } finally {
+    tailWaybillSearch.value = ''
     tailWaybillPrintListLoading.value = false
   }
 }
@@ -181,19 +182,6 @@ const submitAddTailWaybill = async () => {
     addLoading.value = false
   }
 }
-
-// const testPrint = async () => {
-//   try {
-//     await printDocument(
-//       'https://uspinshun.oss-accelerate.aliyuncs.com/PK-2507787497635973511.pdf',
-//       'pdf',
-//       'TEMU_Y2#WAYBILL',
-//     )
-//     ElMessage.success('测试打印成功')
-//   } catch (error) {
-//     ElMessage.error(error instanceof Error ? error.message : '测试打印失败')
-//   }
-// }
 
 onMounted(() => {
   fetchPage()

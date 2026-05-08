@@ -41,32 +41,17 @@ const onSubmit = async () => {
   <div class="min-h-screen flex items-center justify-center bg-slate-100 px-4">
     <el-card class="w-full max-w-md">
       <template #header>
-        <div class="text-center text-xl font-semibold text-slate-700">后台管理系统登录</div>
+        <div class="text-center text-xl font-semibold text-slate-700">品瞬科技系统登录</div>
       </template>
-      <el-form
-        ref="formRef"
-        :model="form"
-        :rules="rules"
-        label-position="top"
-        @keyup.enter="onSubmit"
-      >
+      <el-form ref="formRef" :model="form" :rules="rules" label-position="top" @keyup.enter="onSubmit">
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username" placeholder="请输入用户名" clearable />
+          <el-input v-model.trim="form.username" placeholder="请输入用户名" clearable />
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input
-            v-model="form.password"
-            type="password"
-            show-password
-            placeholder="请输入密码"
-            clearable
-          />
+          <el-input v-model.trim="form.password" type="password" show-password placeholder="请输入密码" clearable />
         </el-form-item>
-        <el-button type="primary" class="w-full" :loading="loading" @click="onSubmit"
-          >登录</el-button
-        >
+        <el-button type="primary" class="w-full" :loading="loading" @click="onSubmit">登录</el-button>
       </el-form>
-      <div class="mt-3 text-xs text-slate-400 text-center">默认账号：admin / 123456</div>
     </el-card>
   </div>
 </template>

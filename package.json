@@ -6,6 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
+    "build_online": "vite build --mode development_online",
+    "build_pre": "vite build --mode development_pre",
+    "build_test": "vite build --mode development_test",
+    "build_prod": "vite build --mode production",
+    "prod": "vite  --mode production",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -41,6 +46,7 @@
   "dependencies": {
     "@element-plus/icons-vue": "^2.3.2",
     "axios": "^1.15.2",
+    "dayjs": "^1.11.20",
     "element-plus": "^2.13.7",
     "pinia": "^3.0.4",
     "vue": "^3.5.32",

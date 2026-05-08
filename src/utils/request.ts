@@ -3,8 +3,8 @@ import axios from 'axios'
 const TOKEN_KEY = 'admin_token'
 
 const request = axios.create({
-  baseURL: 'http://localhost:2602',
-  timeout: 10000,
+  baseURL: '/api',
+  timeout: 10000 * 6,
 })
 
 let clearingSessionPromise: Promise<void> | null = null

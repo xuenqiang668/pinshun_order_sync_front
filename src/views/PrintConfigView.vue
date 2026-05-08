@@ -80,23 +80,32 @@ onMounted(() => {
 </script>
 
 <template>
-  <el-card v-loading="loading" class="print-config-page">
+  <el-card v-loading="loading" class="print-config-page !rounded-xl !border-0">
     <template #header>
-      <div class="text-lg font-semibold">面单打印配置</div>
+      <div class="flex items-center justify-between">
+        <div class="text-base font-semibold text-slate-800">面单打印配置</div>
+        <el-tag type="info" effect="plain">平台 {{ platformList.length }} 个</el-tag>
+      </div>
     </template>
 
-    <el-tabs v-model="activePlatformCode" class="mb-4">
-      <el-tab-pane
-        v-for="platform in platformList"
-        :key="platform.platformCode"
-        :label="platform.platformName"
-        :name="platform.platformCode"
-      />
-    </el-tabs>
+    <div class="mb-4 rounded-lg border border-slate-200 bg-slate-50 px-3 pt-2">
+      <el-tabs v-model="activePlatformCode">
+        <el-tab-pane
+          v-for="platform in platformList"
+          :key="platform.platformCode"
+          :label="platform.platformName"
+          :name="platform.platformCode"
+        />
+      </el-tabs>
+    </div>
 
-    <el-table :data="activeRows" border>
-      <el-table-column prop="configItemName" label="面单" min-width="220" />
-      <el-table-column label="打印机列表" min-width="580">
+    <div class="mb-4 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-slate-600">
+      每个面单模板绑定一个本机打印机；清空或点击“禁用”后保存，即可停用该模板的自动打印。
+    </div>
+
+    <el-table :data="activeRows" border class="config-table">
+      <el-table-column prop="configItemName" label="面单模板" min-width="220" />
+      <el-table-column label="绑定打印机" min-width="620">
         <template #default="{ row }">
           <div class="flex items-center gap-3">
             <el-select
@@ -104,7 +113,7 @@ onMounted(() => {
               placeholder="请选择打印机"
               clearable
               filterable
-              class="!w-[420px]"
+              class="!w-[440px]"
             >
               <el-option v-for="item in printerOptions" :key="item" :label="item" :value="item" />
             </el-select>
@@ -117,7 +126,19 @@ onMounted(() => {
     </el-table>
 
     <div class="mt-6 flex justify-center">
-      <el-button type="primary" :loading="saving" @click="saveConfig">保存</el-button>
+      <el-button type="primary" :loading="saving" @click="saveConfig">保存配置</el-button>
     </div>
   </el-card>
 </template>
+
+<style scoped>
+.print-config-page {
+  box-shadow: 0 8px 24px rgb(15 23 42 / 6%);
+}
+
+.config-table :deep(.el-table__header th) {
+  background-color: #f8fafc;
+  color: #334155;
+  font-weight: 600;
+}
+</style>

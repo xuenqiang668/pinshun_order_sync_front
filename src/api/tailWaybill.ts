@@ -1,21 +1,43 @@
+import type { CommonResult, PageResult } from '@/api/commonResult'
+import { unwrapResult } from '@/api/commonResult'
 import request from '@/utils/request'
 
-export interface TailWaybillPrintDetailPageParam {
-  search?: string
+/** 揽收/尾程打印查询参数，与 TemuTailWaybillPrintPageParam 对齐 */
+export interface TemuTailWaybillPrintPageParam {
+  /** 第三方单号 */
+  orderNo?: string
+  operatorId?: string
   startTime?: string
   endTime?: string
   current?: number
   size?: number
 }
 
-export interface TailWaybillPrintDetailPageResult {
+/** 揽收/尾程打印分页结果，与 TemuTailWaybillPrintPageResult 对齐 */
+export interface TemuTailWaybillPrintPageResult {
+  id: string
   orderNo: string
-  packageId: string
-  tailTrackingNumber: string
+  orderNumber: string
   operatorName: string
   orderTime: string
-  pickupTime: string
   createTime: string
+}
+
+/** 揽收/尾程打印详情结果，与 TemuTailWaybillPrintDetailResult 对齐 */
+export interface TemuTailWaybillPrintDetailResult {
+  id: string
+  orderNo: string
+  packageId: string
+  trackingNumber: string
+  operatorName: string
+  orderTime: string
+  createTime: string
+}
+
+export interface TemuTailWaybillPrintDetailPageParam {
+  id: string
+  current?: number
+  size?: number
 }
 
 export interface WaybillPrintFileResult {
@@ -36,30 +58,9 @@ export interface FactoryPrintConfigResult {
   configItemList: FactoryPrintConfigItemDTO[]
 }
 
-interface PageResult<T> {
-  records?: T[]
-  list?: T[]
-  total?: number
-}
-
-interface CommonResult<T> {
-  code?: number
-  msg?: string
-  message?: string
-  data?: T
-}
-
-const unwrapResult = <T>(result: CommonResult<T>): T => {
-  const success = result.code === undefined || result.code === 0 || result.code === 200
-  if (!success) {
-    throw new Error(result.msg || result.message || '请求失败')
-  }
-  return result.data as T
-}
-
-export const getTailWaybillPageApi = async (param: TailWaybillPrintDetailPageParam) => {
-  const { data } = await request.get<CommonResult<PageResult<TailWaybillPrintDetailPageResult>>>(
-    '/pinshun/tail/waybill/detail/print/page',
+export const getTailWaybillPageApi = async (param: TemuTailWaybillPrintPageParam) => {
+  const { data } = await request.get<CommonResult<PageResult<TemuTailWaybillPrintPageResult>>>(
+    '/pinshun/temu/tail/waybill/print/page',
     { params: param },
   )
   const pageData = unwrapResult(data)
@@ -69,13 +70,22 @@ export const getTailWaybillPageApi = async (param: TailWaybillPrintDetailPagePar
   }
 }
 
-export const getTailWaybillPrintListApi = async (search: string) => {
-  const { data } = await request.get<CommonResult<WaybillPrintFileResult[]>>(
-    '/pinshun/tail/waybill/detail/print',
-    {
-      params: { search },
-    },
+export const getTailWaybillPrintDetailPageApi = async (param: TemuTailWaybillPrintDetailPageParam) => {
+  const { data } = await request.get<CommonResult<PageResult<TemuTailWaybillPrintDetailResult>>>(
+    '/pinshun/temu/tail/waybill/print/detail/page',
+    { params: param },
   )
+  const pageData = unwrapResult(data)
+  return {
+    records: pageData?.records ?? pageData?.list ?? [],
+    total: pageData?.total ?? 0,
+  }
+}
+
+export const getTailWaybillPrintListApi = async (orderNo: string) => {
+  const { data } = await request.get<CommonResult<WaybillPrintFileResult[]>>('/pinshun/temu/tail/waybill/print', {
+    params: { orderNo },
+  })
   return unwrapResult(data) ?? []
 }
 
@@ -87,8 +97,6 @@ export const addTailWaybillApi = async (waybillIdList: string[]) => {
 }
 
 export const getPrintConfigListApi = async () => {
-  const { data } = await request.get<CommonResult<FactoryPrintConfigResult[]>>(
-    '/pinshun/print/config/list',
-  )
+  const { data } = await request.get<CommonResult<FactoryPrintConfigResult[]>>('/pinshun/print/config/list')
   return unwrapResult(data) ?? []
 }

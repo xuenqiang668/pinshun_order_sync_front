@@ -107,17 +107,17 @@ function checkOrTryHttp() {
 //==获取LODOP对象主过程,判断是否安装、需否升级:==
 function getLodop(oOBJECT, oEMBED) {
 	var strFontTag = "<br><font color='#FF00FF'>打印控件"
-	var strLodopInstall = strFontTag + "未安装!点击这里<a href='/lodop/install_lodop32.exe' target='_self'>执行安装</a>"
-	var strLodopUpdate = strFontTag + "需要升级!点击这里<a href='/lodop/install_lodop32.exe' target='_self'>执行升级</a>"
-	var strLodop64Install = strFontTag + "未安装!点击这里<a href='/lodop/install_lodop64.exe' target='_self'>执行安装</a>"
+	var strLodopInstall = strFontTag + "未安装!点击这里<a href='/produce/lodop/install_lodop32.exe' target='_self'>执行安装</a>"
+	var strLodopUpdate = strFontTag + "需要升级!点击这里<a href='/produce/lodop/install_lodop32.exe' target='_self'>执行升级</a>"
+	var strLodop64Install = strFontTag + "未安装!点击这里<a href='/produce/lodop/install_lodop64.exe' target='_self'>执行安装</a>"
 	var strLodop64Update =
-		strFontTag + "需要升级!点击这里<a href='/lodop/install_lodop64.exe' target='_self'>执行升级</a>"
+		strFontTag + "需要升级!点击这里<a href='/produce/lodop/install_lodop64.exe' target='_self'>执行升级</a>"
 	var strCLodopInstallA =
-		"<br><font color='#FF00FF'>Web打印服务CLodop未安装启动，点击这里<a href='/lodop/CLodop_Setup_for_Win32NT.exe' target='_self'>下载执行安装</a>"
+		"<br><font color='#FF00FF'>Web打印服务CLodop未安装启动，点击这里<a href='/produce/lodop/CLodop_Setup_for_Win32NT.exe' target='_self'>下载执行安装</a>"
 	var strCLodopInstallB =
 		"<br>（若此前已安装过，可<a href='CLodop.protocol:setup' target='_self'>点这里直接再次启动</a>）"
 	var strCLodopUpdate =
-		"<br><font color='#FF00FF'>Web打印服务CLodop需升级!点击这里<a href='/lodop/CLodop_Setup_for_Win32NT.exe' target='_self'>执行升级</a>"
+		"<br><font color='#FF00FF'>Web打印服务CLodop需升级!点击这里<a href='/produce/lodop/CLodop_Setup_for_Win32NT.exe' target='_self'>执行升级</a>"
 	var strLodop7FontTag = "<br><font color='#FF00FF'>Web打印服务Lodop7"
 	var strLodop7HrefX86 =
 		"点击这里<a href='Lodop7_Linux_X86_64.tar.gz' target='_self'>下载安装</a>(下载后解压，点击lodop文件开始执行)"

@@ -102,6 +102,19 @@ onMounted(() => {
     <el-table v-loading="loading" :data="pageData" border stripe class="result-table">
       <el-table-column prop="orderNo" label="订单号" min-width="220" />
       <el-table-column prop="createUserName" label="创建用户" min-width="180" />
+      <el-table-column prop="priceType" label="扫描单价类型" min-width="180">
+        <template #default="{ row }">
+          <span v-if="row.priceType">
+            <el-tag v-if="row.priceType === 1" type="info" effect="plain">扫描</el-tag>
+            <el-tag v-else type="success" effect="plain">入库</el-tag>
+          </span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="price" label="单价" min-width="180">
+        <template #default="{ row }">
+          <span v-if="row.price">￥ {{ row.price }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" min-width="200">
         <template #default="{ row }">
           {{ formatCreateTime(row.createTime) }}

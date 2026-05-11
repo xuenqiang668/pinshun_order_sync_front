@@ -14,6 +14,8 @@ export interface TemuOrderScanRecordResult {
   orderNo: string
   createTime: string
   createUserName: string
+  priceType: number
+  price: number
 }
 
 export const getOrderScanRecordPageApi = async (param: TemuOrderScanRecordParam) => {

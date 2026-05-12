@@ -5,8 +5,15 @@ import request from '@/utils/request'
 export interface TemuOrderScanRecordParam {
   startTime?: string
   endTime?: string
+  /** 扫描单价类型：1 扫描，2 入库 */
+  priceType?: number
   current?: number
   size?: number
+}
+
+export interface ScanRecordStatResult {
+  totalNum?: number
+  totalPrice?: number
 }
 
 export interface TemuOrderScanRecordResult {
@@ -28,4 +35,13 @@ export const getOrderScanRecordPageApi = async (param: TemuOrderScanRecordParam)
     records: pageData?.records ?? pageData?.list ?? [],
     total: pageData?.total ?? 0,
   }
+}
+
+export const getOrderScanRecordStatApi = async (
+  param: Pick<TemuOrderScanRecordParam, 'startTime' | 'endTime' | 'priceType'>,
+) => {
+  const { data } = await request.get<CommonResult<ScanRecordStatResult>>('/pinshun/order/scan/record/stat', {
+    params: param,
+  })
+  return unwrapResult(data) ?? {}
 }

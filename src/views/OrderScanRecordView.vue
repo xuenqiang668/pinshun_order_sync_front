@@ -2,19 +2,28 @@
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import dayjs from 'dayjs'
-import { getOrderScanRecordPageApi, type TemuOrderScanRecordResult } from '@/api/orderScanRecord'
+import { DATETIME_FORMAT } from '@/config/datetime'
+import {
+  getOrderScanRecordPageApi,
+  getOrderScanRecordStatApi,
+  type ScanRecordStatResult,
+  type TemuOrderScanRecordResult,
+} from '@/api/orderScanRecord'
 
 const loading = ref(false)
 const pageData = ref<TemuOrderScanRecordResult[]>([])
 const total = ref(0)
+const statData = ref<ScanRecordStatResult>({})
 
 const getCurrentMonthTimeRange = () => [
-  dayjs().startOf('month').format('YYYY-MM-DD HH:mm:ss'),
-  dayjs().endOf('month').format('YYYY-MM-DD HH:mm:ss'),
+  dayjs().startOf('month').format(DATETIME_FORMAT),
+  dayjs().endOf('month').format(DATETIME_FORMAT),
 ]
 
 const queryForm = reactive({
   timeRange: getCurrentMonthTimeRange(),
+  /** 扫描单价类型：1 扫描，2 入库；不选则不限 */
+  priceType: undefined as number | undefined | null,
   current: 1,
   size: 10,
 })
@@ -24,18 +33,38 @@ const formatTimeParams = () => {
   return { startTime, endTime }
 }
 
-const fetchPage = async () => {
+const buildListParams = () => {
+  const { startTime, endTime } = formatTimeParams()
+  const priceType = queryForm.priceType != null ? queryForm.priceType : undefined
+  return { startTime, endTime, priceType }
+}
+
+const loadPage = async () => {
+  const { startTime, endTime, priceType } = buildListParams()
+  const res = await getOrderScanRecordPageApi({
+    startTime,
+    endTime,
+    priceType,
+    current: queryForm.current,
+    size: queryForm.size,
+  })
+  pageData.value = res.records
+  total.value = res.total
+}
+
+const loadStat = async () => {
+  const { startTime, endTime, priceType } = buildListParams()
+  statData.value = await getOrderScanRecordStatApi({ startTime, endTime, priceType })
+}
+
+const fetchPage = async (withStat: boolean) => {
   loading.value = true
   try {
-    const { startTime, endTime } = formatTimeParams()
-    const res = await getOrderScanRecordPageApi({
-      startTime,
-      endTime,
-      current: queryForm.current,
-      size: queryForm.size,
-    })
-    pageData.value = res.records
-    total.value = res.total
+    if (withStat) {
+      await Promise.all([loadPage(), loadStat()])
+    } else {
+      await loadPage()
+    }
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '获取订单扫码记录失败')
   } finally {
@@ -45,28 +74,34 @@ const fetchPage = async () => {
 
 const onSearch = () => {
   queryForm.current = 1
-  fetchPage()
+  void fetchPage(true)
 }
 
 const onReset = () => {
   queryForm.timeRange = getCurrentMonthTimeRange()
+  queryForm.priceType = undefined
   queryForm.current = 1
-  fetchPage()
+  void fetchPage(true)
 }
 
 const onPageChange = (page: number) => {
   queryForm.current = page
-  fetchPage()
+  void fetchPage(false)
+}
+
+const formatStatPrice = (p?: number) => {
+  if (p === undefined || p === null || Number.isNaN(Number(p))) return '-'
+  return `￥ ${Number(p).toFixed(2)}`
 }
 
 const formatCreateTime = (createTime?: string) => {
   if (!createTime) return '-'
   const date = dayjs(createTime)
-  return date.isValid() ? date.format('YYYY-MM-DD HH:mm:ss') : createTime
+  return date.isValid() ? date.format(DATETIME_FORMAT) : createTime
 }
 
 onMounted(() => {
-  fetchPage()
+  void fetchPage(true)
 })
 </script>
 
@@ -85,18 +120,38 @@ onMounted(() => {
           <el-date-picker
             v-model="queryForm.timeRange"
             type="datetimerange"
-            value-format="YYYY-MM-DD HH:mm:ss"
+            :value-format="DATETIME_FORMAT"
             range-separator="至"
             start-placeholder="开始时间"
             end-placeholder="结束时间"
             class="!w-[440px]"
           />
         </el-form-item>
+        <el-form-item label="扫描单价类型">
+          <el-select v-model="queryForm.priceType" clearable placeholder="全部" class="!w-40">
+            <el-option label="扫描" :value="1" />
+            <el-option label="入库" :value="2" />
+          </el-select>
+        </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSearch">查询</el-button>
           <el-button @click="onReset">重置</el-button>
         </el-form-item>
       </el-form>
+    </div>
+
+    <div
+      class="mb-4 flex flex-wrap items-center gap-6 rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm"
+    >
+      <span class="font-medium text-slate-800">当前条件统计</span>
+      <span>
+        总数量：
+        <strong class="text-slate-900">{{ statData.totalNum ?? '-' }}</strong>
+      </span>
+      <span>
+        总金额：
+        <strong class="text-emerald-700">{{ formatStatPrice(statData.totalPrice) }}</strong>
+      </span>
     </div>
 
     <el-table v-loading="loading" :data="pageData" border stripe class="result-table">

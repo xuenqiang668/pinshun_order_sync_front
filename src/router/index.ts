@@ -6,6 +6,7 @@ import TailWaybillPrintView from '@/views/TailWaybillPrintView.vue'
 import PrintConfigView from '@/views/PrintConfigView.vue'
 import OrderScanRecordView from '@/views/OrderScanRecordView.vue'
 import { useAuthStore } from '@/stores/auth'
+import { APP_SHORT_NAME, APP_SYSTEM_NAME } from '@/config/app'
 
 const isProd = import.meta.env.MODE !== 'development'
 
@@ -52,7 +53,7 @@ const router = createRouter({
   ],
 })
 
-router.beforeEach((to) => {
+router.beforeEach(to => {
   const authStore = useAuthStore()
   if (to.path !== '/login' && !authStore.isAuthed) {
     return '/login'
@@ -63,8 +64,8 @@ router.beforeEach((to) => {
   return true
 })
 
-router.afterEach((to) => {
-  document.title = `${to.meta.title ?? '品瞬科技'} - 品瞬科技系统`
+router.afterEach(to => {
+  document.title = `${to.meta.title ?? APP_SHORT_NAME} - ${APP_SYSTEM_NAME}`
 })
 
 export default router

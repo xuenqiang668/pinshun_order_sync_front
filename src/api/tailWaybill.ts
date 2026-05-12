@@ -9,6 +9,8 @@ export interface TemuTailWaybillPrintPageParam {
   operatorId?: string
   startTime?: string
   endTime?: string
+  /** 扫描单价类型：1 扫描，2 入库 */
+  priceType?: number
   current?: number
   size?: number
 }

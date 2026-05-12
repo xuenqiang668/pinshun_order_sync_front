@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
+import { CopyDocument } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
-import type { TableInstance } from 'element-plus'
+import type { VxeTableInstance } from 'vxe-table'
 import dayjs from 'dayjs'
 import {
   addTailWaybillApi,
@@ -42,7 +43,7 @@ const printList = ref<WaybillPrintFileResult[]>([])
 const selectedPrintRows = ref<WaybillPrintFileResult[]>([])
 const addLoading = ref(false)
 const printConfigList = ref<FactoryPrintConfigResult[]>([])
-const printTableRef = ref<TableInstance>()
+const printTableRef = ref<VxeTableInstance<WaybillPrintFileResult>>()
 
 const printConfigNameMap = computed(() => {
   const map = new Map<string, string>()
@@ -139,6 +140,8 @@ const getTailWaybillPrintList = async () => {
       return
     }
 
+    fetchPage()
+
     await Promise.all(
       printList.value.map(item =>
         withTimeout(
@@ -150,7 +153,6 @@ const getTailWaybillPrintList = async () => {
     )
 
     ElMessage.success(`打印任务已发送，共 ${printList.value.length} 条`)
-    await fetchPage()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '获取面单失败')
     printList.value = []
@@ -160,8 +162,9 @@ const getTailWaybillPrintList = async () => {
   }
 }
 
-const onPrintSelectionChange = (rows: WaybillPrintFileResult[]) => {
-  selectedPrintRows.value = rows
+const syncPrintSelection = () => {
+  const $table = printTableRef.value
+  selectedPrintRows.value = ($table?.getCheckboxRecords() as WaybillPrintFileResult[]) ?? []
 }
 
 const detailDialogVisible = ref(false)
@@ -222,7 +225,8 @@ const submitAddTailWaybill = async () => {
     await addTailWaybillApi(selectedPrintRows.value.map(item => item.waybillId))
     ElMessage.success('添加成功')
     printDialogVisible.value = false
-    printTableRef.value?.clearSelection()
+    printTableRef.value?.clearCheckboxRow()
+    selectedPrintRows.value = []
     await fetchPage()
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '添加失败')
@@ -276,41 +280,52 @@ onMounted(() => {
       </el-button>
     </div>
 
-    <el-table v-loading="loading" :data="pageData" border stripe class="result-table">
-      <el-table-column label="第三方单号" min-width="180" show-overflow-tooltip>
-        <template #default="{ row }">
-          <span
-            v-if="row.orderNo"
-            class="copyable-order-no"
-            role="button"
-            tabindex="0"
-            title="点击复制"
-            @click="copyOrderText(row.orderNo)"
-            @keydown.enter.prevent="copyOrderText(row.orderNo)"
-          >
-            {{ row.orderNo }}
-          </span>
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
-      <!-- <el-table-column prop="orderNumber" label="平台订单号" min-width="180" /> -->
-      <el-table-column prop="operatorName" label="操作人" width="120" />
-      <el-table-column label="下单时间" min-width="170">
-        <template #default="{ row }">
-          {{ formatDateTime(row.orderTime) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作时间" min-width="170">
-        <template #default="{ row }">
-          {{ formatDateTime(row.createTime) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="110" fixed="right" align="center">
-        <template #default="{ row }">
-          <el-button link type="primary" @click="openPrintDetail(row)">查看详情</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div v-loading="loading" class="min-h-[200px] rounded-md">
+      <vxe-table
+        class="result-table rounded-md tail-print-main-table"
+        :data="pageData"
+        border
+        stripe
+        empty-text="暂无数据"
+      >
+        <vxe-column title="第三方单号" min-width="220">
+          <template #default="{ row }">
+            <div
+              v-if="row.orderNo"
+              class="copyable-cell"
+              role="button"
+              tabindex="0"
+              title="点击复制"
+              @click="copyOrderText(row.orderNo)"
+              @keydown.enter.prevent="copyOrderText(row.orderNo)"
+            >
+              <span class="copyable-order-no copyable-order-no--multiline">{{ row.orderNo }}</span>
+              <el-icon class="copyable-cell__icon" :size="16" aria-hidden="true">
+                <CopyDocument />
+              </el-icon>
+            </div>
+            <span v-else>-</span>
+          </template>
+        </vxe-column>
+        <!-- <vxe-column field="orderNumber" title="平台订单号" min-width="180" /> -->
+        <vxe-column field="operatorName" title="操作人" width="120" show-overflow="tooltip" />
+        <vxe-column title="下单时间" min-width="170">
+          <template #default="{ row }">
+            {{ formatDateTime(row.orderTime) }}
+          </template>
+        </vxe-column>
+        <vxe-column title="操作时间" min-width="170">
+          <template #default="{ row }">
+            {{ formatDateTime(row.createTime) }}
+          </template>
+        </vxe-column>
+        <vxe-column title="操作" width="110" fixed="right" align="center">
+          <template #default="{ row }">
+            <el-button link type="primary" @click="openPrintDetail(row)">查看详情</el-button>
+          </template>
+        </vxe-column>
+      </vxe-table>
+    </div>
 
     <div class="mt-4 flex justify-end">
       <el-pagination
@@ -325,37 +340,86 @@ onMounted(() => {
   </el-card>
 
   <el-dialog v-model="detailDialogVisible" title="打印详情" width="960px" destroy-on-close>
-    <el-table v-loading="detailLoading" :data="detailRecords" border stripe class="result-table" max-height="420">
-      <el-table-column label="第三方平台订单号" min-width="160" show-overflow-tooltip>
-        <template #default="{ row }">
-          <span
-            v-if="row.orderNo"
-            class="copyable-order-no"
-            role="button"
-            tabindex="0"
-            title="点击复制"
-            @click="copyOrderText(row.orderNo)"
-            @keydown.enter.prevent="copyOrderText(row.orderNo)"
-          >
-            {{ row.orderNo }}
-          </span>
-          <span v-else>-</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="packageId" label="物流包裹编号" min-width="160" show-overflow-tooltip />
-      <el-table-column prop="trackingNumber" label="尾程面单号" min-width="160" show-overflow-tooltip />
-      <el-table-column prop="operatorName" label="操作人" width="100" />
-      <el-table-column label="订单创建时间" min-width="170">
-        <template #default="{ row }">
-          {{ formatDateTime(row.orderTime) }}
-        </template>
-      </el-table-column>
-      <el-table-column label="记录创建时间" min-width="170">
-        <template #default="{ row }">
-          {{ formatDateTime(row.createTime) }}
-        </template>
-      </el-table-column>
-    </el-table>
+    <div v-loading="detailLoading" class="detail-dialog-table-shell min-h-[200px] min-w-0">
+      <vxe-table
+        class="result-table rounded-md tail-print-detail-table tail-print-detail-table--no-h-scroll"
+        :data="detailRecords"
+        border
+        stripe
+        max-height="420"
+        width="100%"
+        empty-text="暂无数据"
+      >
+        <vxe-column title="第三方平台订单号" min-width="130">
+          <template #default="{ row }">
+            <div
+              v-if="row.orderNo"
+              class="copyable-cell"
+              role="button"
+              tabindex="0"
+              title="点击复制"
+              @click="copyOrderText(row.orderNo)"
+              @keydown.enter.prevent="copyOrderText(row.orderNo)"
+            >
+              <span class="copyable-order-no copyable-order-no--multiline">{{ row.orderNo }}</span>
+              <el-icon class="copyable-cell__icon" :size="16" aria-hidden="true">
+                <CopyDocument />
+              </el-icon>
+            </div>
+            <span v-else>-</span>
+          </template>
+        </vxe-column>
+        <vxe-column title="物流包裹编号" min-width="130">
+          <template #default="{ row }">
+            <div
+              v-if="row.packageId"
+              class="copyable-cell"
+              role="button"
+              tabindex="0"
+              title="点击复制"
+              @click="copyOrderText(row.packageId)"
+              @keydown.enter.prevent="copyOrderText(row.packageId)"
+            >
+              <span class="copyable-order-no copyable-order-no--multiline">{{ row.packageId }}</span>
+              <el-icon class="copyable-cell__icon" :size="16" aria-hidden="true">
+                <CopyDocument />
+              </el-icon>
+            </div>
+            <span v-else>-</span>
+          </template>
+        </vxe-column>
+        <vxe-column title="尾程面单号" min-width="130">
+          <template #default="{ row }">
+            <div
+              v-if="row.trackingNumber"
+              class="copyable-cell"
+              role="button"
+              tabindex="0"
+              title="点击复制"
+              @click="copyOrderText(row.trackingNumber)"
+              @keydown.enter.prevent="copyOrderText(row.trackingNumber)"
+            >
+              <span class="copyable-order-no copyable-order-no--multiline">{{ row.trackingNumber }}</span>
+              <el-icon class="copyable-cell__icon" :size="16" aria-hidden="true">
+                <CopyDocument />
+              </el-icon>
+            </div>
+            <span v-else>-</span>
+          </template>
+        </vxe-column>
+        <vxe-column field="operatorName" title="操作人" width="72" show-overflow="tooltip" />
+        <vxe-column title="订单创建时间" min-width="128">
+          <template #default="{ row }">
+            {{ formatDateTime(row.orderTime) }}
+          </template>
+        </vxe-column>
+        <vxe-column title="记录创建时间" min-width="128">
+          <template #default="{ row }">
+            {{ formatDateTime(row.createTime) }}
+          </template>
+        </vxe-column>
+      </vxe-table>
+    </div>
     <div class="mt-4 flex justify-end">
       <el-pagination
         background
@@ -371,29 +435,32 @@ onMounted(() => {
   </el-dialog>
 
   <el-dialog v-model="printDialogVisible" title="可打印面单列表" width="960px">
-    <el-table
-      ref="printTableRef"
-      v-loading="printListLoading"
-      :data="printList"
-      border
-      stripe
-      @selection-change="onPrintSelectionChange"
-    >
-      <el-table-column type="selection" width="55" />
-      <el-table-column prop="waybillId" label="面单记录ID" min-width="200" />
-      <el-table-column prop="printConfigUniCode" label="打印机配置编码" min-width="180" />
-      <el-table-column label="配置名称" min-width="220">
-        <template #default="{ row }">
-          {{ printConfigNameMap.get(row.printConfigUniCode) || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="fileType" label="文件类型" width="120" />
-      <el-table-column label="文件地址" min-width="240">
-        <template #default="{ row }">
-          <el-link :href="row.url" target="_blank" type="primary">{{ row.url }}</el-link>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div v-loading="printListLoading" class="min-h-[160px]">
+      <vxe-table
+        ref="printTableRef"
+        :data="printList"
+        border
+        stripe
+        empty-text="暂无面单"
+        @checkbox-change="syncPrintSelection"
+        @checkbox-all="syncPrintSelection"
+      >
+        <vxe-column type="checkbox" width="55" />
+        <vxe-column field="waybillId" title="面单记录ID" min-width="200" show-overflow="tooltip" />
+        <vxe-column field="printConfigUniCode" title="打印机配置编码" min-width="180" show-overflow="tooltip" />
+        <vxe-column title="配置名称" min-width="220" show-overflow="tooltip">
+          <template #default="{ row }">
+            {{ printConfigNameMap.get(row.printConfigUniCode) || '-' }}
+          </template>
+        </vxe-column>
+        <vxe-column field="fileType" title="文件类型" width="120" show-overflow="tooltip" />
+        <vxe-column title="文件地址" min-width="240" show-overflow="tooltip">
+          <template #default="{ row }">
+            <el-link :href="row.url" target="_blank" type="primary">{{ row.url }}</el-link>
+          </template>
+        </vxe-column>
+      </vxe-table>
+    </div>
 
     <template #footer>
       <el-button @click="printDialogVisible = false">取消</el-button>
@@ -411,19 +478,72 @@ onMounted(() => {
   margin-bottom: 8px;
 }
 
-.result-table :deep(.el-table__header th) {
-  background-color: #f8fafc;
-  color: #334155;
-  font-weight: 600;
+.copyable-cell {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: baseline;
+  gap: 6px;
+  cursor: pointer;
+  text-align: left;
+}
+
+.copyable-cell__icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--el-color-primary);
+  opacity: 0.9;
+  position: relative;
+  top: 0.08em;
+  transition: opacity 0.15s ease;
+}
+
+.copyable-cell:hover .copyable-cell__icon {
+  opacity: 1;
 }
 
 .copyable-order-no {
   cursor: pointer;
   color: var(--el-color-primary);
-  text-decoration: none;
+  text-decoration: none !important;
 }
 
-.copyable-order-no:hover {
-  text-decoration: underline;
+.copyable-order-no:hover,
+.copyable-cell:hover .copyable-order-no {
+  text-decoration: none !important;
+}
+
+.copyable-order-no--multiline {
+  white-space: normal;
+  word-break: break-all;
+}
+
+.tail-print-main-table :deep(.vxe-body--column:first-child .vxe-cell) {
+  white-space: normal;
+  word-break: break-all;
+}
+
+.tail-print-detail-table :deep(.vxe-body--column:nth-child(1) .vxe-cell),
+.tail-print-detail-table :deep(.vxe-body--column:nth-child(2) .vxe-cell),
+.tail-print-detail-table :deep(.vxe-body--column:nth-child(3) .vxe-cell) {
+  white-space: normal;
+  word-break: break-all;
+}
+
+.detail-dialog-table-shell {
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+.tail-print-detail-table--no-h-scroll :deep(.vxe-table--header-wrapper),
+.tail-print-detail-table--no-h-scroll :deep(.vxe-table--body-wrapper),
+.tail-print-detail-table--no-h-scroll :deep(.vxe-table--footer-wrapper) {
+  overflow-x: hidden !important;
+}
+
+.tail-print-detail-table--no-h-scroll :deep(.vxe-table--body-inner-wrapper),
+.tail-print-detail-table--no-h-scroll :deep(.vxe-table--header-inner-wrapper) {
+  width: 100% !important;
 }
 </style>

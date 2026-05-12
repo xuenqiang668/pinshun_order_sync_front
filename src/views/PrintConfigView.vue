@@ -17,12 +17,12 @@ const printerOptions = ref<string[]>([])
 const selectedPrinterMap = ref<Record<string, string>>({})
 
 const activePlatform = computed(() => {
-  return platformList.value.find((platform) => platform.platformCode === activePlatformCode.value)
+  return platformList.value.find(platform => platform.platformCode === activePlatformCode.value)
 })
 
 const activeRows = computed<PlatformConfigRow[]>(() => {
   return (
-    activePlatform.value?.configItemList?.map((item) => ({
+    activePlatform.value?.configItemList?.map(item => ({
       printConfigUniCode: item.printConfigUniCode,
       configItemName: item.configItemName,
     })) ?? []
@@ -43,7 +43,7 @@ const loadPageData = async () => {
 
     try {
       const printerList = getPrinterList()
-      printerOptions.value = printerList.map((item) => item.name).filter(Boolean)
+      printerOptions.value = printerList.map(item => item.name).filter(Boolean)
     } catch (error) {
       printerOptions.value = []
       ElMessage.warning(error instanceof Error ? error.message : '获取本机打印机列表失败')
@@ -103,9 +103,9 @@ onMounted(() => {
       每个面单模板绑定一个本机打印机；清空或点击“禁用”后保存，即可停用该模板的自动打印。
     </div>
 
-    <el-table :data="activeRows" border class="config-table">
-      <el-table-column prop="configItemName" label="面单模板" min-width="220" />
-      <el-table-column label="绑定打印机" min-width="620">
+    <vxe-table :data="activeRows" border class="config-table rounded-md" empty-text="暂无配置项">
+      <vxe-column field="configItemName" title="面单模板" min-width="220" show-overflow="tooltip" />
+      <vxe-column title="绑定打印机" min-width="620">
         <template #default="{ row }">
           <div class="flex items-center gap-3">
             <el-select
@@ -117,13 +117,11 @@ onMounted(() => {
             >
               <el-option v-for="item in printerOptions" :key="item" :label="item" :value="item" />
             </el-select>
-            <el-button type="primary" plain @click="clearPrinter(row.printConfigUniCode)"
-              >禁用</el-button
-            >
+            <el-button type="primary" plain @click="clearPrinter(row.printConfigUniCode)">禁用</el-button>
           </div>
         </template>
-      </el-table-column>
-    </el-table>
+      </vxe-column>
+    </vxe-table>
 
     <div class="mt-6 flex justify-center">
       <el-button type="primary" :loading="saving" @click="saveConfig">保存配置</el-button>
@@ -134,11 +132,5 @@ onMounted(() => {
 <style scoped>
 .print-config-page {
   box-shadow: 0 8px 24px rgb(15 23 42 / 6%);
-}
-
-.config-table :deep(.el-table__header th) {
-  background-color: #f8fafc;
-  color: #334155;
-  font-weight: 600;
 }
 </style>

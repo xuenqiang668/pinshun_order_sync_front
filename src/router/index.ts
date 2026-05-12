@@ -7,11 +7,10 @@ import PrintConfigView from '@/views/PrintConfigView.vue'
 import OrderScanRecordView from '@/views/OrderScanRecordView.vue'
 import { useAuthStore } from '@/stores/auth'
 import { APP_SHORT_NAME, APP_SYSTEM_NAME } from '@/config/app'
-
-const isProd = import.meta.env.MODE !== 'development'
+import { isProdMode } from '@/config/env'
 
 const router = createRouter({
-  history: createWebHistory(isProd ? '/produce/' : '/'),
+  history: createWebHistory(isProdMode ? '/produce/' : '/'),
   routes: [
     {
       path: '/login',

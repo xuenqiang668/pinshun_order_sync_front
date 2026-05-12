@@ -19,3 +19,10 @@ body {
     sans-serif;
   background-color: #f5f7fa;
 }
+
+/* vxe-table 表头与 Element 系后台页风格统一 */
+.vxe-table .vxe-table--header-wrapper .vxe-header--column {
+  background-color: #f8fafc;
+  color: #334155;
+  font-weight: 600;
+}

@@ -154,28 +154,30 @@ onMounted(() => {
       </span>
     </div>
 
-    <el-table v-loading="loading" :data="pageData" border stripe class="result-table">
-      <el-table-column prop="orderNo" label="订单号" min-width="220" />
-      <el-table-column prop="createUserName" label="创建用户" min-width="180" />
-      <el-table-column prop="priceType" label="扫描单价类型" min-width="180">
-        <template #default="{ row }">
-          <span v-if="row.priceType">
-            <el-tag v-if="row.priceType === 1" type="info" effect="plain">扫描</el-tag>
-            <el-tag v-else type="success" effect="plain">入库</el-tag>
-          </span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="price" label="单价" min-width="180">
-        <template #default="{ row }">
-          <span v-if="row.price">￥ {{ row.price }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="创建时间" min-width="200">
-        <template #default="{ row }">
-          {{ formatCreateTime(row.createTime) }}
-        </template>
-      </el-table-column>
-    </el-table>
+    <div v-loading="loading" class="min-h-[200px] rounded-md">
+      <vxe-table class="result-table rounded-md" :data="pageData" border stripe empty-text="暂无数据">
+        <vxe-column field="orderNo" title="订单号" min-width="220" show-overflow="tooltip" />
+        <vxe-column field="createUserName" title="创建用户" min-width="180" show-overflow="tooltip" />
+        <vxe-column field="priceType" title="扫描单价类型" min-width="180">
+          <template #default="{ row }">
+            <span v-if="row.priceType">
+              <el-tag v-if="row.priceType === 1" type="info" effect="plain">扫描</el-tag>
+              <el-tag v-else type="success" effect="plain">入库</el-tag>
+            </span>
+          </template>
+        </vxe-column>
+        <vxe-column field="price" title="单价" min-width="180">
+          <template #default="{ row }">
+            <span v-if="row.price">￥ {{ row.price }}</span>
+          </template>
+        </vxe-column>
+        <vxe-column title="创建时间" min-width="200">
+          <template #default="{ row }">
+            {{ formatCreateTime(row.createTime) }}
+          </template>
+        </vxe-column>
+      </vxe-table>
+    </div>
 
     <div class="mt-4 flex justify-end">
       <el-pagination
@@ -197,11 +199,5 @@ onMounted(() => {
 
 .query-form :deep(.el-form-item) {
   margin-bottom: 8px;
-}
-
-.result-table :deep(.el-table__header th) {
-  background-color: #f8fafc;
-  color: #334155;
-  font-weight: 600;
 }
 </style>

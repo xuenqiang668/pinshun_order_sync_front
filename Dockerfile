@@ -7,8 +7,8 @@ WORKDIR /app
 COPY . .
 
 RUN npm install -g pnpm --registry=https://registry.npmmirror.com/
-RUN pnpm config set registry https://registry.npmmirror.com/
-RUN pnpm install
+RUN npm config set registry https://registry.npmmirror.com/
+RUN npm install
 
 # 使用传入的构建模式
 RUN npm run ${BUILD_MODE}

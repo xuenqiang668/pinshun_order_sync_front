@@ -133,26 +133,24 @@ const getTailWaybillPrintList = async () => {
   }
   try {
     tailWaybillPrintListLoading.value = true
-    printList.value = await getTailWaybillPrintListApi(tailWaybillSearch.value)
-
-    if (printList.value.length === 0) {
-      ElMessage.warning('未获取到可打印面单')
-      return
-    }
+    printList.value = (await getTailWaybillPrintListApi(tailWaybillSearch.value)) ?? []
 
     fetchPage()
 
-    await Promise.all(
-      printList.value.map(item =>
-        withTimeout(
-          printDocument(item.url, item.fileType, item.printConfigUniCode),
-          15000,
-          '打印超时，请检查打印服务是否已启动',
-        ),
-      ),
-    )
+    const list = printList.value.filter(it => it.url)
 
-    ElMessage.success(`打印任务已发送，共 ${printList.value.length} 条`)
+    if (list.length) {
+      await Promise.all(
+        list.map(item =>
+          withTimeout(
+            printDocument(item.url, item.fileType, item.printConfigUniCode),
+            15000,
+            '打印超时，请检查打印服务是否已启动',
+          ),
+        ),
+      )
+      ElMessage.success(`打印任务已发送，共 ${printList.value.length} 条`)
+    }
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '获取面单失败')
     printList.value = []
